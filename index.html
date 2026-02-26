@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Powered UX Pipeline — Hippo CoP Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Hippo Primary */
+    --hippo-navy: #1B3A4B;
+    --hippo-navy-light: #2C5A6F;
+    --hippo-navy-lightest: #8ABED4;
+    --hippo-navy-dark: #0F2330;
+    --hippo-grey: #D5DFE0;
+    --hippo-grey-light: #E8EEEF;
+    --hippo-grey-white: #F4F7F7;
+    --hippo-grey-dark: #A0B0B3;
+
+    /* Hippo Accents */
+    --hippo-pink: #E8A0B4;
+    --hippo-pink-light: #F3CCD8;
+    --hippo-pink-dark: #B45A74;
+    --hippo-turquoise: #7DB9AA;
+    --hippo-turquoise-light: #B5DDD3;
+    --hippo-turquoise-lightest: #D8EDE8;
+    --hippo-turquoise-dark: #3D7A6B;
+
+    /* Semantic */
+    --bg: var(--hippo-grey);
+    --bg-card: #FFFFFF;
+    --bg-card-hover: var(--hippo-grey-white);
+    --text-primary: var(--hippo-navy);
+    --text-muted: var(--hippo-navy-light);
+    --text-dim: var(--hippo-grey-dark);
+    --border: #C5D1D3;
+
+    /* Tool accents — mapped to Hippo palette */
+    --accent-gemini: var(--hippo-turquoise-dark);
+    --accent-figma: var(--hippo-navy);
+    --accent-claude: var(--hippo-pink-dark);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--hippo-grey-dark), transparent);
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--hippo-turquoise-dark);
+    border: 1px solid var(--hippo-turquoise);
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.2rem;
+  }
+
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 0.6rem;
+    color: var(--hippo-navy);
+  }
+
+  .header h1 strong {
+    font-weight: 600;
+  }
+
+  .header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 400;
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ─── Hippo Logo SVG (simplified silhouette) ─── */
+  .hippo-logo {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+  }
+
+  /* ─── Pipeline Strip ─── */
+  .pipeline-strip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    padding: 2rem 1rem 1rem;
+  }
+
+  .pipeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.8rem 1.5rem;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  .pipeline-node:hover { background: rgba(255,255,255,0.4); }
+  .pipeline-node.active .node-icon { transform: scale(1.1); }
+
+  .node-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+  }
+
+  .node-icon.gemini {
+    background: var(--hippo-turquoise-lightest);
+    color: var(--hippo-turquoise-dark);
+    border: 1px solid var(--hippo-turquoise);
+  }
+  .node-icon.figma {
+    background: var(--hippo-navy);
+    color: white;
+    border: 1px solid var(--hippo-navy);
+  }
+  .node-icon.claude {
+    background: var(--hippo-pink-light);
+    color: var(--hippo-pink-dark);
+    border: 1px solid var(--hippo-pink);
+  }
+
+  .pipeline-node.active .node-icon.gemini { box-shadow: 0 4px 20px rgba(61, 122, 107, 0.2); }
+  .pipeline-node.active .node-icon.figma { box-shadow: 0 4px 20px rgba(27, 58, 75, 0.25); }
+  .pipeline-node.active .node-icon.claude { box-shadow: 0 4px 20px rgba(180, 90, 116, 0.2); }
+
+  .node-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    transition: color 0.3s;
+  }
+
+  .pipeline-node.active .node-label { color: var(--text-primary); }
+
+  .pipeline-arrow {
+    color: var(--hippo-grey-dark);
+    font-size: 1.2rem;
+    margin: 0 0.3rem;
+    opacity: 0.5;
+    padding-bottom: 1.2rem;
+  }
+
+  .step-indicator {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 0.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── Content Panels ─── */
+  .panel-container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 3rem;
+  }
+
+  .panel {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-header {
+    margin-bottom: 1.8rem;
+  }
+
+  .panel-header h2 {
+    font-size: 1.6rem;
+    font-weight: 200;
+    margin-bottom: 0.5rem;
+    color: var(--hippo-navy);
+  }
+
+  .panel-header h2 strong {
+    font-weight: 600;
+  }
+
+  .panel-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  /* ─── Cards ─── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--hippo-grey-dark);
+  }
+
+  .card-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+  }
+
+  .card-tag.gemini { color: var(--hippo-turquoise-dark); background: var(--hippo-turquoise-lightest); }
+  .card-tag.figma { color: white; background: var(--hippo-navy); }
+  .card-tag.claude { color: var(--hippo-pink-dark); background: var(--hippo-pink-light); }
+
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--hippo-navy);
+  }
+
+  .card p {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* ─── Prompt Example ─── */
+  .prompt-example {
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    margin-top: 0;
+    padding-bottom: 0.9rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-example:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .prompt-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--hippo-navy);
+    margin-bottom: 0.4rem;
+  }
+
+  .prompt-text {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ─── Accessibility Checklist ─── */
+  .checklist {
+    list-style: none;
+    margin-top: 1rem;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--hippo-grey-light);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .check-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--hippo-turquoise-lightest);
+    color: var(--hippo-turquoise-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 0.1rem;
+  }
+
+  /* ─── Flow Diagram ─── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-box {
+    padding: 0.65rem 1.1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .flow-box.gemini { background: var(--hippo-turquoise-lightest); color: var(--hippo-turquoise-dark); border: 1px solid var(--hippo-turquoise); }
+  .flow-box.figma { background: var(--hippo-navy); color: white; }
+  .flow-box.claude { background: var(--hippo-pink-light); color: var(--hippo-pink-dark); border: 1px solid var(--hippo-pink); }
+
+  .flow-arrow {
+    color: var(--text-dim);
+    font-size: 1rem;
+  }
+
+  /* ─── Branch Workflow ─── */
+  .branch-container {
+    margin-top: 0.5rem;
+    padding: 0 0 0.5rem;
+  }
+
+  .branch-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 1rem 0 0.8rem;
+    text-align: center;
+  }
+
+  .branch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .branch-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    position: relative;
+  }
+
+  .branch-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: var(--hippo-navy);
+  }
+
+  .branch-number {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: white;
+    background: var(--hippo-navy);
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 100px;
+    margin-bottom: 0.6rem;
+  }
+
+  .branch-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--hippo-navy);
+    margin-bottom: 0.4rem;
+  }
+
+  .branch-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+
+  .branch-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .branch-step {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--hippo-navy);
+    background: var(--hippo-grey-light);
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .branch-arrow {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  /* ─── SVG Flow Diagram ─── */
+  .flow-diagram-full {
+    margin: 1.5rem 0 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    overflow-x: auto;
+  }
+
+  .flow-diagram-full svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ─── Stats Row ─── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat {
+    text-align: center;
+    padding: 1.4rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .stat-number {
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-number.gemini { color: var(--hippo-turquoise-dark); }
+  .stat-number.figma { color: var(--hippo-navy); }
+  .stat-number.claude { color: var(--hippo-pink-dark); }
+
+  .stat-label {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── Navigation Buttons ─── */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--hippo-grey-dark);
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .nav-btn.primary {
+    background: var(--hippo-navy);
+    border-color: var(--hippo-navy);
+    color: white;
+  }
+
+  .nav-btn.primary:hover {
+    background: var(--hippo-navy-light);
+  }
+
+  /* ─── Footer ─── */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  .footer span {
+    color: var(--hippo-turquoise-dark);
+  }
+
+  /* ─── Hippo Logo ─── */
+  .hippo-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .hippo-logo svg {
+    width: 140px;
+    height: auto;
+  }
+
+  .hippo-logo-footer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .hippo-logo-footer svg {
+    width: 100px;
+    height: auto;
+  }
+
+  /* ─── Prompt Tabs ─── */
+  .prompt-tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 1.2rem;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .prompt-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex: 1;
+  }
+
+  .prompt-tab:hover { color: var(--text-primary); }
+
+  .prompt-tab.active {
+    color: var(--hippo-navy);
+    border-bottom-color: var(--hippo-navy);
+    font-weight: 600;
+  }
+
+  .prompt-tab-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  .prompt-tab-badge.public {
+    background: #D8EDE8;
+    color: #3D7A6B;
+  }
+
+  .prompt-tab-badge.private {
+    background: #E0D4F5;
+    color: #5B3FA0;
+  }
+
+  .prompt-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+    padding: 1.4rem 1.5rem;
+    margin-top: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .prompt-panel.active {
+    display: block;
+  }
+
+  /* ─── Expand Button ─── */
+  .expand-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .expand-btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--hippo-grey-dark);
+  }
+
+  .expand-btn.open {
+    background: var(--hippo-navy);
+    color: white;
+    border-color: var(--hippo-navy);
+  }
+
+  /* ─── Detail Drawer ─── */
+  .detail-drawer {
+    display: none;
+    animation: fadeIn 0.4s ease;
+    margin-top: 1rem;
+  }
+
+  .detail-drawer.open {
+    display: block;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+  }
+
+  .detail-col {
+    background: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .detail-col-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.85rem 0.9rem;
+    background: #E7EEEF;
+  }
+
+  .detail-col-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: #010008;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .detail-col-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #010008;
+    line-height: 1.2;
+  }
+
+  .detail-col-time {
+    font-size: 0.7rem;
+    color: #010008;
+    font-weight: 400;
+    margin-top: 0.1rem;
+  }
+
+  .detail-col-body {
+    padding: 0.7rem 0.9rem 0.9rem;
+    background: #FFFFFF;
+  }
+
+  /* Section labels */
+  .detail-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #010008;
+    margin-bottom: 0.45rem;
+    margin-top: 0.5rem;
+  }
+
+  .detail-label:first-child {
+    margin-top: 0;
+  }
+
+  /* Role pills — square with 7px radius */
+  .detail-role-pills {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+
+  .detail-role {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 26px;
+    padding: 0 0.5rem;
+    border-radius: 7px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #010008;
+    background: #E7EEEF;
+    letter-spacing: 0.03em;
+  }
+
+  /* List items — gradient fade left to right */
+  .detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .detail-list li {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #010008;
+    padding: 0.45rem 0.7rem;
+    background: linear-gradient(90deg, #E7EEEF 0%, rgba(231, 238, 239, 0) 100%);
+    border-radius: 8px;
+  }
+
+  .detail-list li.indent {
+    margin-left: 1rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+
+  /* Body text (for column 2) */
+  .detail-body-text {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-body-text:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    .detail-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .phase-pills {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  /* ─── Severity Dashboard ─── */
+  .severity-dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .severity-stat {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .severity-count {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .severity-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.3rem;
+  }
+
+  .severity-stat.critical .severity-count { color: #D32F2F; }
+  .severity-stat.critical .severity-label { color: #D32F2F; }
+  .severity-stat.critical { border-color: #FFCDD2; background: #FFF5F5; }
+
+  .severity-stat.high .severity-count { color: #E65100; }
+  .severity-stat.high .severity-label { color: #E65100; }
+  .severity-stat.high { border-color: #FFE0B2; background: #FFF8F0; }
+
+  .severity-stat.medium .severity-count { color: #F9A825; }
+  .severity-stat.medium .severity-label { color: #F9A825; }
+  .severity-stat.medium { border-color: #FFF9C4; background: #FFFEF5; }
+
+  .severity-stat.low .severity-count { color: #1B3A4B; }
+  .severity-stat.low .severity-label { color: #1B3A4B; }
+  .severity-stat.low { border-color: var(--border); }
+
+  /* Audit Context */
+  .audit-context {
+    margin-top: 0.8rem;
+    padding: 0.8rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .audit-context strong {
+    color: var(--hippo-navy);
+  }
+
+  /* ─── Findings Section ─── */
+  .findings-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .finding-group {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+
+  .finding-toggle {
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+  }
+
+  .finding-toggle:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .finding-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .finding-badge.critical { background: #FFCDD2; color: #B71C1C; }
+  .finding-badge.high { background: #FFE0B2; color: #BF360C; }
+  .finding-badge.medium { background: #FFF9C4; color: #F57F17; }
+  .finding-badge.low { background: #E7EEEF; color: #1B3A4B; }
+
+  .finding-summary {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    flex: 1;
+  }
+
+  .finding-chevron {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .finding-group.open .finding-chevron {
+    transform: rotate(180deg);
+  }
+
+  .finding-body {
+    display: none;
+    padding: 0 1rem 0.8rem;
+  }
+
+  .finding-group.open .finding-body {
+    display: block;
+  }
+
+  .finding-item {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .finding-id {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 24px;
+    padding-top: 0.1rem;
+  }
+
+  .finding-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .finding-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--hippo-navy);
+    margin-bottom: 0.2rem;
+  }
+
+  .finding-element {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 0.35rem;
+  }
+
+  .finding-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 0.35rem;
+  }
+
+  .finding-rec {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    background: #F5F7F7;
+    padding: 0.45rem 0.65rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--hippo-turquoise);
+  }
+
+  .finding-rec code {
+    font-size: 0.65rem;
+    background: #E7EEEF;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--hippo-navy);
+  }
+
+  /* ─── Prompt Templates Drawer ─── */
+  .prompts-drawer {
+    display: none;
+    animation: fadeIn 0.4s ease;
+    margin-top: 1rem;
+  }
+
+  .prompts-drawer.open {
+    display: block;
+  }
+
+  .prompt-template-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .pt-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    padding: 0.6rem 0.7rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+  }
+
+  .pt-tab:hover { color: var(--text-primary); }
+
+  .pt-tab.active {
+    color: var(--hippo-navy);
+    border-bottom-color: var(--hippo-navy);
+    font-weight: 600;
+  }
+
+  .pt-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+    margin-top: 0.8rem;
+  }
+
+  .pt-panel.active {
+    display: block;
+  }
+
+  .pt-context {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 0.6rem;
+    font-style: italic;
+  }
+
+  .pt-prompt {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.3rem;
+    font-size: 0.75rem;
+    font-family: 'SF Mono', 'Fira Code', 'DM Sans', monospace;
+    color: var(--text-muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ─── Gradient separator (brand element) ─── */
+  .gradient-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--hippo-turquoise), var(--hippo-pink));
+    border-radius: 2px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 880px;
+  }
+
+  @media (max-width: 640px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr; }
+    .pipeline-strip { gap: 0; }
+    .pipeline-node { padding: 0.5rem 0.8rem; }
+    .header h1 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="hippo-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1077.75 519.72"><defs><style>.hl{fill:#15243d;stroke-width:0}</style></defs><path class="hl" d="m238.68,339.88c-1.49.08-2.99.12-4.5.12-2.3,0-4.59-.09-6.84-.28,0,.09,0,.18,0,.28,0,21.87-17.73,39.59-39.6,39.59s-39.6-17.73-39.6-39.59c0-14.35,7.63-26.91,19.06-33.86-10.17-13.79-16.18-30.84-16.18-49.29v-.2c-.77.24-1.58.38-2.43.38-4.42,0-8.01-3.58-8.01-8.01s3.59-8.01,8.01-8.01c1.36,0,2.64.34,3.76.94,7.02-38.81,40.98-68.24,81.82-68.24,15.37,0,29.76,4.17,42.11,11.43,1.89-9.11,6.69-17.15,13.38-23.12-4.42-1.42-7.61-5.56-7.61-10.45,0-6.06,4.91-10.98,10.98-10.98s10.98,4.91,10.98,10.98c0,.71-.07,1.4-.19,2.07,4.45-1.58,9.24-2.43,14.23-2.43,19.86,0,36.56,13.58,41.3,31.96,7.82-4.75,17-7.48,26.82-7.48,28.58,0,51.74,23.16,51.74,51.74s-23.17,51.74-51.74,51.74c-26.65,0-48.6-20.15-51.44-46.04-5.13,2.18-10.77,3.39-16.69,3.39-1.1,0-2.18-.04-3.26-.12,1.66,6.54,2.54,13.4,2.54,20.46,0,18.85-6.27,36.24-16.85,50.18,10.49,7.12,17.39,19.15,17.39,32.78,0,21.87-17.73,39.59-39.6,39.59s-39.56-17.69-39.6-39.53"/><path class="hl" d="m468.79,310.85v-140.59h15.06v55.84c3.61-4.82,8.03-8.9,13.26-12.25,5.22-3.35,11.91-5.02,20.08-5.02,6.96,0,13.49,1.64,19.58,4.92,6.09,3.28,11.05,8.17,14.86,14.66,3.81,6.5,5.72,14.5,5.72,24v58.45h-15.06v-58.04c0-9.1-2.61-16.44-7.83-22-5.22-5.55-11.98-8.33-20.29-8.33-5.62,0-10.71,1.27-15.26,3.82-4.55,2.54-8.2,6.13-10.95,10.74-2.75,4.62-4.12,9.94-4.12,15.97v57.84h-15.06Z"/><path class="hl" d="m577.64,210.43h15.06v100.42h-15.06v-100.42Zm-.6-36.55h16.27v19.68h-16.27v-19.68Z"/><path class="hl" d="m663,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hl" d="m777.68,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.03,16.57,6.03,26.21s-2.01,18.21-6.03,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hl" d="m886.94,298.8c7.5,0,13.82-1.74,18.98-5.22,5.15-3.48,9.07-8.13,11.75-13.96,2.68-5.82,4.02-12.15,4.02-18.98s-1.34-13.32-4.02-19.08c-2.68-5.76-6.6-10.37-11.75-13.86-5.16-3.48-11.48-5.22-18.98-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.48,11.51,5.22,18.88,5.22m0,13.66c-10.18,0-19.01-2.31-26.51-6.93-7.5-4.62-13.26-10.88-17.27-18.78-4.02-7.9-6.02-16.6-6.02-26.11s2.01-18.38,6.02-26.21c4.02-7.83,9.77-14.06,17.27-18.68,7.5-4.62,16.34-6.93,26.51-6.93s19.18,2.31,26.61,6.93c7.43,4.62,13.16,10.85,17.17,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.74,14.16-17.17,18.78-7.43,4.62-16.3,6.93-26.61,6.93"/></svg>
+  </div>
+  <h1><strong>AI-Powered UX</strong> Pipeline</h1>
+  <p>Moving at pace, failing fast, and amplifying ways of working through Gemini, Figma Make, and Claude on MoD Identity Assurance.</p>
+</div>
+
+<!-- Pipeline Navigation -->
+<div class="pipeline-strip">
+  <div class="pipeline-node active" onclick="showPanel(0)" id="node-0">
+    <div class="node-icon gemini">G</div>
+    <div class="node-label">Gemini</div>
+    <div class="step-indicator">STEP 01</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-node" onclick="showPanel(1)" id="node-1">
+    <div class="node-icon figma">F</div>
+    <div class="node-label">Figma Make</div>
+    <div class="step-indicator">STEP 02</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-node" onclick="showPanel(2)" id="node-2">
+    <div class="node-icon claude">C</div>
+    <div class="node-label">Claude</div>
+    <div class="step-indicator">STEP 03</div>
+  </div>
+</div>
+
+<!-- Content Panels -->
+<div class="panel-container">
+
+  <!-- Panel 0: Gemini -->
+  <div class="panel active" id="panel-0">
+    <div class="panel-header">
+      <h2>Step 1 — <strong>Prompt Engineering with Gemini</strong></h2>
+      <p>Gemini is the starting point of the pipeline. Using the "Laying the foundations" structure, we engineer a detailed prompt collaboratively — then refine it with Gemini Canvas before pasting into Figma Make.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-tag gemini">Why Gemini</div>
+        <h3>Context-Rich Prompts</h3>
+        <p>Gemini excels at understanding complex UX requirements and translating them into detailed, structured prompts that specify layout, hierarchy, interaction patterns, and design standards.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag gemini">Technique</div>
+        <h3>Iterative Refinement</h3>
+        <p>Start with a broad intent, then refine through Gemini Canvas. The prompt follows the same structure as the "Laying the foundations" phase — vision, objectives, requirements, and data schemas.</p>
+      </div>
+    </div>
+
+    <!-- Prompt Tabs -->
+    <div class="prompt-tabs">
+      <button class="prompt-tab active" onclick="showPrompt(0)" id="prompt-tab-0">
+        <span class="prompt-tab-badge public">Public Sector</span> GOV.UK Service
+      </button>
+      <button class="prompt-tab" onclick="showPrompt(1)" id="prompt-tab-1">
+        <span class="prompt-tab-badge private">Private Sector</span> SaaS Product
+      </button>
+    </div>
+
+    <!-- Prompt 0: Public Sector — GOV.UK -->
+    <div class="prompt-panel active" id="prompt-0">
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Vision and Goal</div>
+        <div class="prompt-text">Design a simple, linear GOV.UK service that allows a citizen to report a change of circumstances to a government department. The service should follow GDS (Government Digital Service) design patterns exactly, feeling indistinguishable from a real GOV.UK service. The goal is to demonstrate how AI tools can rapidly generate public sector digital services that meet government standards out of the box.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Description of Prototype</div>
+        <div class="prompt-text">A 7-screen linear journey consisting of: a GOV.UK start page with a green "Start now" button, followed by 4 question pages each asking one thing per page (What has changed? → Your current details → Your new details → Contact preferences), a "Check your answers" summary page with change links, and a confirmation page with a green panel showing a reference number. Each screen must include the GOV.UK header with crown and service name, a back link, and phase banner.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Key Objectives</div>
+        <div class="prompt-text">Demonstrate that AI-generated prototypes can accurately replicate the GOV.UK Design System. Follow the "one thing per page" pattern rigorously. Produce a prototype that could be shown to a service owner or stakeholder and be taken seriously. Keep the journey under 3 minutes to complete end-to-end.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ User Insight / Behaviours / Needs</div>
+        <div class="prompt-text">Users are citizens who need to inform government of a life change (e.g. moved address, changed name, employment status changed). They may be stressed or time-poor. They expect a straightforward, no-nonsense experience. They are familiar with GOV.UK and trust its plain, consistent design. They need reassurance at the end that their report has been received. Accessibility is critical — users may be on mobile, using assistive technology, or have low digital confidence.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Functional and Non-Functional Requirements</div>
+        <div class="prompt-text">Functional: Radio button selection for change type, text inputs for current and new details, checkbox group for contact preferences, summary page with editable answers, confirmation page with reference number. Non-functional: WCAG 2.1 AA compliant, mobile-first responsive layout, all form elements must have visible labels, error states must follow GOV.UK error pattern (summary at top + inline), page load under 2 seconds, progressive enhancement approach.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Design Requirements</div>
+        <div class="prompt-text">Use the GOV.UK Design System exactly: GDS Transport font for headings, body text in 19px, GOV.UK colour palette (#0b0c0c text, #1d70b8 links, #00703c buttons, #f3f2f1 background panels). Crown logo in black header bar. Phase banner (Beta) below header. Back link above the h1 on every question page. Green "Start now" button with arrow on start page. Green confirmation panel on final page. Two-thirds/one-third layout on desktop, full-width on mobile. No decorative imagery. No custom components — GOV.UK standard components only.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Data Schemas</div>
+        <div class="prompt-text">change_type: enum ["Change of address", "Change of name", "Change of employment", "Other"]. current_details: { full_name: string, address_line_1: string, address_line_2: string (optional), town_or_city: string, postcode: string }. new_details: { same fields as current_details, effective_date: date }. contact_preferences: array ["Email", "Post", "Text message"]. reference_number: string (format: "COC-" + 4 random uppercase letters + "-" + 4 digits, e.g. "COC-ABCD-1234").</div>
+      </div>
+    </div>
+
+    <!-- Prompt 1: Private Sector — SaaS -->
+    <div class="prompt-panel" id="prompt-1">
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Vision and Goal</div>
+        <div class="prompt-text">Design a modern SaaS onboarding flow for a project management tool called "Launchpad". The experience should feel polished, consumer-friendly, and visually rich — a clear departure from public sector design. The goal is to demonstrate the same AI workflow producing a completely different design language, proving the tools are not limited to one aesthetic.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Description of Prototype</div>
+        <div class="prompt-text">A 5-screen onboarding wizard consisting of: a welcome/sign-up screen with social login options, a "Set up your workspace" screen (workspace name + URL slug), an "Invite your team" screen with email input and role assignment, a "Choose your plan" screen with pricing cards (Free / Pro / Enterprise), and a dashboard landing screen showing an empty state with onboarding checklist. Each screen should include a progress indicator and the Launchpad brand.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Key Objectives</div>
+        <div class="prompt-text">Show the contrast between GOV.UK and commercial product design. Demonstrate that the AI tools can generate rich UI with illustrations, cards, gradients, and modern patterns. Produce something that looks like a real product someone would pay for. Keep the flow to 5 screens maximum — tight and purposeful.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ User Insight / Behaviours / Needs</div>
+        <div class="prompt-text">Users are team leads or project managers evaluating a new tool. They want to get set up fast and see value quickly. They will likely abandon if onboarding takes more than 3 minutes. They expect to invite colleagues immediately. They are comparing this to Notion, Asana, Monday.com — so the experience needs to feel premium. They are desktop-first but may revisit on mobile. They want social login (Google, Microsoft) to reduce friction.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Functional and Non-Functional Requirements</div>
+        <div class="prompt-text">Functional: Social auth buttons (Google, Microsoft, email), text input for workspace name with live URL preview, multi-email invite with role dropdown (Admin / Member / Viewer), pricing toggle (monthly/annual) with 3-tier card layout, dashboard with empty state and checklist widget. Non-functional: WCAG 2.1 AA compliant, responsive (desktop-first), smooth transitions between steps, inline validation on all inputs, skeleton loading states on dashboard, under 60KB initial bundle.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Design Requirements</div>
+        <div class="prompt-text">Modern SaaS aesthetic: Inter or equivalent sans-serif, 4px base spacing grid, rounded corners (8px cards, 12px modals, 24px buttons). Primary brand colour #4F46E5 (indigo), secondary #10B981 (emerald for CTAs), neutrals #F9FAFB to #111827. Subtle gradients on hero sections. Soft shadows (0 1px 3px rgba(0,0,0,0.1)). Progress bar at top of each step. Illustrated empty states. Pricing cards with a "Most popular" badge on the Pro tier. Left-aligned form layouts. Light/white background with generous whitespace.</div>
+      </div>
+
+      <div class="prompt-example">
+        <div class="prompt-label">▸ Data Schemas</div>
+        <div class="prompt-text">user: { name: string, email: string, auth_provider: enum ["google", "microsoft", "email"], avatar_url: string (optional) }. workspace: { name: string, slug: string (auto-generated from name), created_at: datetime }. invites: array of { email: string, role: enum ["admin", "member", "viewer"] }. plan: { tier: enum ["free", "pro", "enterprise"], billing_cycle: enum ["monthly", "annual"], price_monthly: number, price_annual: number }. onboarding_checklist: array of { id: string, label: string, completed: boolean }.</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" disabled>← Previous</button>
+      <button class="nav-btn primary" onclick="showPanel(1)">Next: Figma Make →</button>
+    </div>
+  </div>
+
+  <!-- Panel 1: Figma Make -->
+  <div class="panel" id="panel-1">
+    <div class="panel-header">
+      <h2>Step 2 — <strong>Design Generation with Figma Make</strong></h2>
+      <p>The following shows how a single Gemini prompt — built by collaborating closely with others in a multi-disciplinary team — becomes a usable, almost production-ready Figma prototype in minutes.</p>
+    </div>
+
+    <!-- High-level SVG Flow (always visible) -->
+    <div class="flow-diagram-full">
+      <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" fill="none" font-family="'DM Sans', sans-serif">
+        <rect x="20" y="120" width="130" height="38" rx="19" fill="#D8EDE8" stroke="#7DB9AA" stroke-width="1"/>
+        <text x="85" y="143" text-anchor="middle" font-size="11" font-weight="600" fill="#3D7A6B">Gemini Prompt</text>
+        <line x1="154" y1="139" x2="184" y2="139" stroke="#A0B0B3" stroke-width="1.5"/>
+        <polygon points="182,135 190,139 182,143" fill="#A0B0B3"/>
+        <rect x="194" y="120" width="145" height="38" rx="19" fill="#1B3A4B"/>
+        <text x="266" y="143" text-anchor="middle" font-size="11" font-weight="600" fill="white">Paste into Make</text>
+        <line x1="343" y1="139" x2="373" y2="139" stroke="#A0B0B3" stroke-width="1.5"/>
+        <polygon points="371,135 379,139 371,143" fill="#A0B0B3"/>
+        <rect x="383" y="120" width="160" height="38" rx="19" fill="#1B3A4B"/>
+        <text x="463" y="143" text-anchor="middle" font-size="11" font-weight="600" fill="white">Generate Variants</text>
+        <path d="M 543 130 C 575 130, 580 60, 610 60" stroke="#7DB9AA" stroke-width="1.5" fill="none"/>
+        <polygon points="608,56 616,60 608,64" fill="#7DB9AA"/>
+        <text x="575" y="52" font-size="8" font-weight="600" fill="#7DB9AA" letter-spacing="0.08em">PATH A</text>
+        <rect x="620" y="42" width="120" height="36" rx="18" fill="#D8EDE8" stroke="#7DB9AA" stroke-width="1"/>
+        <text x="680" y="64" text-anchor="middle" font-size="10" font-weight="600" fill="#3D7A6B">Point &amp; Edit</text>
+        <line x1="744" y1="60" x2="774" y2="60" stroke="#A0B0B3" stroke-width="1.5"/>
+        <polygon points="772,56 780,60 772,64" fill="#A0B0B3"/>
+        <path d="M 543 148 C 575 148, 580 190, 610 190" stroke="#E8A0B4" stroke-width="1.5" fill="none"/>
+        <polygon points="608,186 616,190 608,194" fill="#E8A0B4"/>
+        <text x="575" y="185" font-size="8" font-weight="600" fill="#B45A74" letter-spacing="0.08em">PATH B</text>
+        <rect x="620" y="172" width="125" height="36" rx="18" fill="#F3CCD8" stroke="#E8A0B4" stroke-width="1"/>
+        <text x="682" y="194" text-anchor="middle" font-size="10" font-weight="600" fill="#B45A74">Copy Design</text>
+        <line x1="682" y1="212" x2="682" y2="230" stroke="#A0B0B3" stroke-width="1.5"/>
+        <polygon points="678,228 682,236 686,228" fill="#A0B0B3"/>
+        <rect x="620" y="238" width="125" height="36" rx="18" fill="#F3CCD8" stroke="#E8A0B4" stroke-width="1"/>
+        <text x="682" y="260" text-anchor="middle" font-size="10" font-weight="600" fill="#B45A74">Refine in Figma</text>
+        <line x1="682" y1="278" x2="682" y2="292" stroke="#A0B0B3" stroke-width="1.5"/>
+        <polygon points="678,290 682,298 686,290" fill="#A0B0B3"/>
+        <rect x="610" y="300" width="145" height="36" rx="18" fill="#1B3A4B"/>
+        <text x="682" y="322" text-anchor="middle" font-size="10" font-weight="600" fill="white">Paste Back into Make</text>
+        <path d="M 610 318 C 500 350, 440 310, 440 162" stroke="#A0B0B3" stroke-width="1" stroke-dasharray="4 3" fill="none"/>
+        <polygon points="436,164 440,156 444,164" fill="#A0B0B3"/>
+      </svg>
+    </div>
+
+    <!-- Expand button -->
+    <div style="text-align: center; margin: 0.8rem 0 0;">
+      <button class="expand-btn" id="detail-toggle" onclick="toggleDetail()">
+        <span id="detail-toggle-text">View detailed workflow</span>
+        <span id="detail-toggle-icon">↓</span>
+      </button>
+    </div>
+
+    <!-- Expandable detailed workflow -->
+    <div class="detail-drawer" id="detail-drawer">
+      <div class="detail-grid">
+
+        <!-- Column 1: Laying the foundations -->
+        <div class="detail-col">
+          <div class="detail-col-header">
+            <span class="detail-col-num">1</span>
+            <div>
+              <div class="detail-col-title">Laying the foundations</div>
+              <div class="detail-col-time">Time taken ~ 1 hour</div>
+            </div>
+          </div>
+          <div class="detail-col-body">
+            <div class="detail-label">Who needs to be involved?</div>
+            <div class="detail-role-pills">
+              <span class="detail-role">CL</span>
+              <span class="detail-role">PM</span>
+              <span class="detail-role">TA</span>
+              <span class="detail-role">BA</span>
+              <span class="detail-role">UR</span>
+              <span class="detail-role">CD</span>
+            </div>
+            <div class="detail-label">What needs to be defined?</div>
+            <ul class="detail-list">
+              <li>Vision and goal</li>
+              <li>Description of prototype</li>
+              <li>Key objectives</li>
+              <li>User insight / behaviours / needs</li>
+              <li>Functional requirements</li>
+              <li>Design requirements</li>
+              <li>Data schemas</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Column 2: Perfecting the prompt -->
+        <div class="detail-col">
+          <div class="detail-col-header">
+            <span class="detail-col-num">2</span>
+            <div>
+              <div class="detail-col-title">Perfecting the prompt</div>
+              <div class="detail-col-time">Time taken ~ Minutes</div>
+            </div>
+          </div>
+          <div class="detail-col-body">
+            <div class="detail-label">Using Gemini Canvas to refine prompt</div>
+            <p class="detail-body-text">At this stage, you are primarily feeding Gemini all the information you have gathered from the previous step.</p>
+            <p class="detail-body-text">Canvas accelerates this process by being a collaborative, persistent, and visual workspace. Helping you to move from brainstorming and information gathering to creating tangible and editable outputs.</p>
+          </div>
+        </div>
+
+        <!-- Column 3: Defining the framework -->
+        <div class="detail-col">
+          <div class="detail-col-header">
+            <span class="detail-col-num">3</span>
+            <div>
+              <div class="detail-col-title">Defining the framework</div>
+              <div class="detail-col-time">Time taken ~ Minutes</div>
+            </div>
+          </div>
+          <div class="detail-col-body">
+            <div class="detail-label">Pasting the prompt into Figma Make</div>
+            <ul class="detail-list">
+              <li>Set which Model you want Make to use</li>
+              <li>Set guidelines for Make to understand</li>
+              <li>Amplify process by adding integrations</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Column 4: Refining and iterating -->
+        <div class="detail-col">
+          <div class="detail-col-header">
+            <span class="detail-col-num">4</span>
+            <div>
+              <div class="detail-col-title">Refining and iterating</div>
+              <div class="detail-col-time">Time taken ~ Minutes</div>
+            </div>
+          </div>
+          <div class="detail-col-body">
+            <div class="detail-label">Who needs to be involved?</div>
+            <div class="detail-role-pills">
+              <span class="detail-role">CL</span>
+              <span class="detail-role">PM</span>
+              <span class="detail-role">TA</span>
+              <span class="detail-role">BA</span>
+              <span class="detail-role">UR</span>
+              <span class="detail-role">CD</span>
+            </div>
+            <ul class="detail-list">
+              <li>Generate prototype and start delivering</li>
+              <li>Methods of refinement in Make</li>
+              <li class="indent">Point and edit</li>
+              <li class="indent">Copy design and iterate in canvas</li>
+              <li>Attach designs back into Make</li>
+              <li>Collaborate, rinse and repeat</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top: 1.5rem;">
+      <div class="card">
+        <div class="card-tag figma">Tip</div>
+        <h3>Prompt Specificity Matters</h3>
+        <p>The more specific the Gemini prompt, the closer the first Figma Make output is to the final design. Include spacing, hierarchy, and interaction details for best results.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag figma">Tip</div>
+        <h3>Design System Alignment</h3>
+        <p>Reference your existing design tokens and component patterns in the prompt. Figma Make will attempt to match spacing scales, type ramps, and colour palettes you describe.</p>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" onclick="showPanel(0)">← Previous: Gemini</button>
+      <button class="nav-btn primary" onclick="showPanel(2)">Next: Claude →</button>
+    </div>
+  </div>
+
+  <!-- Panel 2: Claude -->
+  <div class="panel" id="panel-2">
+    <div class="panel-header">
+      <h2>Step 3 — <strong>Accessibility Validation with Claude</strong></h2>
+      <p>Once the design is generated, Claude performs thorough accessibility testing — evaluating the output against WCAG 2.2 AA standards and identifying issues before any code is written.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-tag claude">Method</div>
+        <h3>Browser Extension Testing</h3>
+        <p>Using Claude's browser extension, a prompt is given to test the published Figma Make prototype directly. Claude takes control of the browser, navigates the prototype, and performs automated accessibility testing — identifying contrast, focus order, touch target, and semantic issues in real time.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag claude">Method</div>
+        <h3>Prioritised Issue Reporting</h3>
+        <p>Claude delivers a structured report categorising every finding by severity — Critical, High, Medium, and Low — so the team can triage and address the most impactful accessibility issues first.</p>
+      </div>
+    </div>
+
+    <!-- Severity Dashboard -->
+    <div class="severity-dashboard">
+      <div class="severity-stat critical">
+        <div class="severity-count">3</div>
+        <div class="severity-label">Critical</div>
+      </div>
+      <div class="severity-stat high">
+        <div class="severity-count">4</div>
+        <div class="severity-label">High</div>
+      </div>
+      <div class="severity-stat medium">
+        <div class="severity-count">4</div>
+        <div class="severity-label">Medium</div>
+      </div>
+      <div class="severity-stat low">
+        <div class="severity-count">3</div>
+        <div class="severity-label">Low</div>
+      </div>
+    </div>
+
+    <div class="audit-context">
+      <p><strong>System under review:</strong> Sign-In Interface — tested across iPad Portrait (768px), iPad Landscape (~1024px), and Smaller Tablet (547px). Audit conducted with a tablet-first perspective, elevating severity of issues impacting touch and on-the-go usage.</p>
+    </div>
+
+    <!-- Expandable Findings -->
+    <div class="findings-section">
+
+      <!-- CRITICAL -->
+      <div class="finding-group">
+        <button class="finding-toggle" onclick="toggleFinding(this)">
+          <span class="finding-badge critical">Critical</span>
+          <span class="finding-summary">3 issues — must be fixed immediately</span>
+          <span class="finding-chevron">↓</span>
+        </button>
+        <div class="finding-body">
+          <div class="finding-item">
+            <div class="finding-id">#1</div>
+            <div class="finding-content">
+              <div class="finding-title">Input Border Contrast Fails WCAG 1.4.11</div>
+              <div class="finding-element">Username and Password field borders</div>
+              <div class="finding-desc">Border contrast ratio of 1.74:1 is well below the required 3:1 for non-text contrast. Impact amplified by tablet use in variable lighting conditions.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Set border to at least <code>rgba(0,0,0,0.46)</code> (~3:1). Add a subtle background fill (e.g. <code>#F5F5F5</code>) as secondary affordance.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#2</div>
+            <div class="finding-content">
+              <div class="finding-title">Skip Link is Non-functional (WCAG 2.4.1 / 4.1.2)</div>
+              <div class="finding-element">"Skip to main content" anchor link</div>
+              <div class="finding-desc">The skip link has no href target, rendering it completely non-functional for keyboard users.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>href="#main-content"</code>. Wrap sign-in card in <code>&lt;main id="main-content" tabindex="-1"&gt;</code>.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#3</div>
+            <div class="finding-content">
+              <div class="finding-title">Missing H1 — Only H2 Exists (WCAG 1.3.1 / 2.4.6)</div>
+              <div class="finding-element">"Sign In" heading rendered as &lt;h2&gt;</div>
+              <div class="finding-desc">Page lacks an H1, breaking heading hierarchy. Screen readers rely on heading levels to understand page structure.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Change "Sign In" from <code>&lt;h2&gt;</code> to <code>&lt;h1&gt;</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGH -->
+      <div class="finding-group">
+        <button class="finding-toggle" onclick="toggleFinding(this)">
+          <span class="finding-badge high">High</span>
+          <span class="finding-summary">4 issues — requires urgent attention</span>
+          <span class="finding-chevron">↓</span>
+        </button>
+        <div class="finding-body">
+          <div class="finding-item">
+            <div class="finding-id">#4</div>
+            <div class="finding-content">
+              <div class="finding-title">Password Toggle Below 44×44px Touch Target (WCAG 2.5.8)</div>
+              <div class="finding-element">Eye icon toggle button (40×40px)</div>
+              <div class="finding-desc">Elevated from Medium to High — tablet-first design is fundamentally touch, and 40px is undersized vs the 48px recommendation.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Increase to 48×48px. Use MUI's <code>IconButton size="large"</code> or explicit min-width/height. Ensure 8px spacing from adjacent elements.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#5</div>
+            <div class="finding-content">
+              <div class="finding-title">Password Toggle Lacks State Indication (WCAG 4.1.2)</div>
+              <div class="finding-element">Toggle button with static aria-label</div>
+              <div class="finding-desc">No indication to assistive technology whether the password is currently shown or hidden.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>aria-pressed="false"</code> toggling to <code>"true"</code>, or dynamically switch aria-label between "Show password" and "Hide password".</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#6</div>
+            <div class="finding-content">
+              <div class="finding-title">No Error States or Validation Feedback (WCAG 3.3.1 / 3.3.3)</div>
+              <div class="finding-element">Username and Password fields</div>
+              <div class="finding-desc">Elevated to High — in an identity assurance context, failed authentication on a field tablet requires clear, robust error communication.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>required</code> and <code>aria-required="true"</code>. Implement visible error messages with <code>role="alert"</code> referenced via <code>aria-describedby</code>.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#7</div>
+            <div class="finding-content">
+              <div class="finding-title">Form Lacks Accessible Name (WCAG 4.1.2)</div>
+              <div class="finding-element">The &lt;form&gt; element</div>
+              <div class="finding-desc">Form has no programmatic label, making it harder for screen reader users to understand its purpose.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>aria-labelledby</code> pointing to the heading ID: <code>&lt;form aria-labelledby="sign-in-heading"&gt;</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDIUM -->
+      <div class="finding-group">
+        <button class="finding-toggle" onclick="toggleFinding(this)">
+          <span class="finding-badge medium">Medium</span>
+          <span class="finding-summary">4 issues — address in next cycle</span>
+          <span class="finding-chevron">↓</span>
+        </button>
+        <div class="finding-body">
+          <div class="finding-item">
+            <div class="finding-id">#8</div>
+            <div class="finding-content">
+              <div class="finding-title">Fixed Card Width Doesn't Optimise for Tablet Landscape (WCAG 1.4.10)</div>
+              <div class="finding-element">Sign-in card capped at 552px</div>
+              <div class="finding-desc">Card only uses ~50% of screen in landscape — missed opportunity for wider, more comfortable touch targets.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Use responsive max-width: <code>max-width: min(600px, 85vw)</code> or increase to MUI's <code>"md"</code> breakpoint for landscape.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#9</div>
+            <div class="finding-content">
+              <div class="finding-title">"Need help?" Text is Not Actionable (WCAG 2.4.4)</div>
+              <div class="finding-element">"Need help? Contact your system administrator" — plain &lt;div&gt;</div>
+              <div class="finding-desc">The help text is not interactive, providing no clear path for users who need assistance.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Make actionable: <code>Need help? &lt;a href="mailto:admin@example.com"&gt;Contact your system administrator&lt;/a&gt;</code>.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#10</div>
+            <div class="finding-content">
+              <div class="finding-title">Focus Indicator on Toggle May Be Insufficient (WCAG 2.4.7 / 2.4.11)</div>
+              <div class="finding-element">Password visibility toggle button</div>
+              <div class="finding-desc">Default focus indicator may not meet the enhanced focus appearance requirements.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add 2px solid outline (e.g. <code>#1976D2</code>) on <code>:focus-visible</code> to match input focus styling.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#11</div>
+            <div class="finding-content">
+              <div class="finding-title">Inputs Missing name Attributes (Best Practice)</div>
+              <div class="finding-element">Both input fields have empty name attributes</div>
+              <div class="finding-desc">Affects autofill, form data submission, and assistive technology identification.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>name="username"</code> and <code>name="password"</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOW -->
+      <div class="finding-group">
+        <button class="finding-toggle" onclick="toggleFinding(this)">
+          <span class="finding-badge low">Low</span>
+          <span class="finding-summary">3 issues — minor cleanup</span>
+          <span class="finding-chevron">↓</span>
+        </button>
+        <div class="finding-body">
+          <div class="finding-item">
+            <div class="finding-id">#12</div>
+            <div class="finding-content">
+              <div class="finding-title">Sign In Button Contrast is Marginal (WCAG 1.4.3)</div>
+              <div class="finding-element">"Sign In" button — white on <code>rgb(25, 118, 210)</code></div>
+              <div class="finding-desc">Contrast ratio of 4.6:1 is technically passing but marginal, particularly problematic on tablets in high-glare environments.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Darken to MUI's <code>blue[800]</code> (<code>rgb(21, 101, 192)</code>) to achieve ~5.5:1.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#13</div>
+            <div class="finding-content">
+              <div class="finding-title">No Landmark Structure (WCAG 1.3.1)</div>
+              <div class="finding-element">Page structure — no &lt;main&gt;, &lt;header&gt;, &lt;footer&gt;</div>
+              <div class="finding-desc">Absence of landmarks makes it harder for screen reader users to navigate and understand page regions.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Add <code>&lt;main&gt;</code> around card content. Add planned landmarks for the full application.</div>
+            </div>
+          </div>
+          <div class="finding-item">
+            <div class="finding-id">#14</div>
+            <div class="finding-content">
+              <div class="finding-title">Page Title is Technical, Not User-Facing (WCAG 2.4.2)</div>
+              <div class="finding-element"><code>&lt;title&gt;IAL3 Manual Check&lt;/title&gt;</code></div>
+              <div class="finding-desc">The technical title doesn't communicate context to users, particularly those using screen readers who rely on page titles for orientation.</div>
+              <div class="finding-rec"><strong>Fix:</strong> Rename to "Sign In — Identity Assurance Service".</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Prompt Templates -->
+    <div style="text-align: center; margin: 1.2rem 0 0;">
+      <button class="expand-btn" id="prompts-toggle" onclick="togglePrompts()">
+        <span id="prompts-toggle-text">Try it yourself — prompt templates</span>
+        <span id="prompts-toggle-icon">↓</span>
+      </button>
+    </div>
+
+    <div class="prompts-drawer" id="prompts-drawer">
+      <div class="prompt-template-tabs">
+        <button class="pt-tab active" onclick="showPT(0)" id="pt-tab-0">🌐 Live Prototype Link</button>
+        <button class="pt-tab" onclick="showPT(1)" id="pt-tab-1">🌟 Master Image Audit</button>
+        <button class="pt-tab" onclick="showPT(2)" id="pt-tab-2">🔍 Screen Reader & Focus</button>
+      </div>
+
+      <div class="pt-panel active" id="pt-0">
+        <div class="pt-context">Use this prompt when you have a public, published Figma prototype link. AI models can primarily audit the initial loaded state.</div>
+        <div class="pt-prompt">Role: Act as a Senior Web Accessibility Specialist and UX/UI Designer. You have expert-level knowledge of WCAG 2.2 AA guidelines, inclusive design principles, and modern web standards.
+
+Task: Please navigate to the following published Figma prototype link: [INSERT YOUR LINK HERE]
+
+Step 1 — Verification: Before providing the audit, briefly describe the screen you are seeing so I can verify you have accessed the correct initial state.
+
+Step 2 — Accessibility Audit: Based on the visual layout and structure, conduct an accessibility audit focusing on:
+1. Color & Contrast: contrast failures for text or essential UI components
+2. Typography & Readability: font sizes, line heights, paragraph widths
+3. Layout & Touch Targets: interactive elements 44x44px minimum, logical visual hierarchy
+4. Forms & Structure: clear visual labels on form fields
+
+Output Format: Findings grouped by Severity (Critical, High, Medium, Low). For each: identify element, explain WCAG violation, provide actionable recommendation.</div>
+      </div>
+
+      <div class="pt-panel" id="pt-1">
+        <div class="pt-context">Use this for a comprehensive review of exported screens. Recommended for auditing complex states (open menus, error states, modals) that AI cannot reach via a link.</div>
+        <div class="pt-prompt">Role: Act as a Senior Web Accessibility Specialist and UX/UI Designer. You have expert-level knowledge of WCAG 2.2 AA and AAA guidelines, inclusive design principles, and modern web/app standards.
+
+Task: I am providing screenshots of a Figma prototype. Please conduct a comprehensive visual accessibility audit.
+
+Focus Areas:
+1. Color Contrast: text/UI components failing 4.5:1 (normal text) or 3:1 (large text/UI)
+2. Use of Color: colour not the only means of conveying information
+3. Typography & Legibility: font sizes, line heights, paragraph widths
+4. Touch Targets & Spacing: minimum 44x44px, adequate spacing between elements
+5. Visual Hierarchy & Cognitive Load: logical layout, sound heading structure
+6. Forms & Interactions: visual labels (not just placeholders), error states, clear boundaries
+
+Output Format: For each issue: [Severity] → Element/Area → Issue → Recommendation.</div>
+      </div>
+
+      <div class="pt-panel" id="pt-2">
+        <div class="pt-context">Use alongside screenshots to map out the logical flow for keyboard and screen reader users based on visual layout.</div>
+        <div class="pt-prompt">Role: Act as an Accessibility Expert specializing in Screen Reader compatibility (NVDA, VoiceOver, JAWS) and Keyboard Navigation.
+
+Task: Analyze the attached screenshot of my Figma design. Ensure the underlying DOM structure and focus order will make sense when developed.
+
+Please provide:
+1. Focus Order Map: Sequential order (1, 2, 3...) for Tab key navigation through interactive elements
+2. Heading Structure: Correct HTML heading hierarchy (H1, H2, H3) based on visual styling
+3. Alt Text Recommendations: Which images/icons need descriptive alt text (suggest the text) vs decorative (alt="")
+4. ARIA Needs: Complex components (tabs, accordions, modals, dropdowns) requiring specific ARIA roles or states for developer handoff</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-number gemini">Fail Fast</div>
+        <div class="stat-label">Learn & Iterate Rapidly</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number figma">Move at Pace</div>
+        <div class="stat-label">Design at Delivery Speed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number claude">Amplify WoW</div>
+        <div class="stat-label">AI-Enhanced Ways of Working</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" onclick="showPanel(1)">← Previous: Figma Make</button>
+      <button class="nav-btn primary" onclick="showPanel(0)">↻ Restart Demo</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="hippo-logo-footer">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1077.75 519.72"><defs><style>.hf{fill:#15243d;stroke-width:0}</style></defs><path class="hf" d="m238.68,339.88c-1.49.08-2.99.12-4.5.12-2.3,0-4.59-.09-6.84-.28,0,.09,0,.18,0,.28,0,21.87-17.73,39.59-39.6,39.59s-39.6-17.73-39.6-39.59c0-14.35,7.63-26.91,19.06-33.86-10.17-13.79-16.18-30.84-16.18-49.29v-.2c-.77.24-1.58.38-2.43.38-4.42,0-8.01-3.58-8.01-8.01s3.59-8.01,8.01-8.01c1.36,0,2.64.34,3.76.94,7.02-38.81,40.98-68.24,81.82-68.24,15.37,0,29.76,4.17,42.11,11.43,1.89-9.11,6.69-17.15,13.38-23.12-4.42-1.42-7.61-5.56-7.61-10.45,0-6.06,4.91-10.98,10.98-10.98s10.98,4.91,10.98,10.98c0,.71-.07,1.4-.19,2.07,4.45-1.58,9.24-2.43,14.23-2.43,19.86,0,36.56,13.58,41.3,31.96,7.82-4.75,17-7.48,26.82-7.48,28.58,0,51.74,23.16,51.74,51.74s-23.17,51.74-51.74,51.74c-26.65,0-48.6-20.15-51.44-46.04-5.13,2.18-10.77,3.39-16.69,3.39-1.1,0-2.18-.04-3.26-.12,1.66,6.54,2.54,13.4,2.54,20.46,0,18.85-6.27,36.24-16.85,50.18,10.49,7.12,17.39,19.15,17.39,32.78,0,21.87-17.73,39.59-39.6,39.59s-39.56-17.69-39.6-39.53"/><path class="hf" d="m468.79,310.85v-140.59h15.06v55.84c3.61-4.82,8.03-8.9,13.26-12.25,5.22-3.35,11.91-5.02,20.08-5.02,6.96,0,13.49,1.64,19.58,4.92,6.09,3.28,11.05,8.17,14.86,14.66,3.81,6.5,5.72,14.5,5.72,24v58.45h-15.06v-58.04c0-9.1-2.61-16.44-7.83-22-5.22-5.55-11.98-8.33-20.29-8.33-5.62,0-10.71,1.27-15.26,3.82-4.55,2.54-8.2,6.13-10.95,10.74-2.75,4.62-4.12,9.94-4.12,15.97v57.84h-15.06Z"/><path class="hf" d="m577.64,210.43h15.06v100.42h-15.06v-100.42Zm-.6-36.55h16.27v19.68h-16.27v-19.68Z"/><path class="hf" d="m663,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hf" d="m777.68,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.03,16.57,6.03,26.21s-2.01,18.21-6.03,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hf" d="m886.94,298.8c7.5,0,13.82-1.74,18.98-5.22,5.15-3.48,9.07-8.13,11.75-13.96,2.68-5.82,4.02-12.15,4.02-18.98s-1.34-13.32-4.02-19.08c-2.68-5.76-6.6-10.37-11.75-13.86-5.16-3.48-11.48-5.22-18.98-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.48,11.51,5.22,18.88,5.22m0,13.66c-10.18,0-19.01-2.31-26.51-6.93-7.5-4.62-13.26-10.88-17.27-18.78-4.02-7.9-6.02-16.6-6.02-26.11s2.01-18.38,6.02-26.21c4.02-7.83,9.77-14.06,17.27-18.68,7.5-4.62,16.34-6.93,26.51-6.93s19.18,2.31,26.61,6.93c7.43,4.62,13.16,10.85,17.17,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.74,14.16-17.17,18.78-7.43,4.62-16.3,6.93-26.61,6.93"/></svg>
+  </div>
+  <span>hippo</span> — AI-Powered UX Pipeline — MoD Identity Assurance — CoP 2026
+</div>
+
+<script>
+  function showPanel(index) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + index).classList.add('active');
+    document.querySelectorAll('.pipeline-node').forEach(n => n.classList.remove('active'));
+    document.getElementById('node-' + index).classList.add('active');
+    document.querySelector('.pipeline-strip').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function toggleDetail() {
+    var drawer = document.getElementById('detail-drawer');
+    var btn = document.getElementById('detail-toggle');
+    var text = document.getElementById('detail-toggle-text');
+    var icon = document.getElementById('detail-toggle-icon');
+    var isOpen = drawer.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    text.textContent = isOpen ? 'Hide detailed workflow' : 'View detailed workflow';
+    icon.textContent = isOpen ? '↑' : '↓';
+  }
+
+  function showPrompt(index) {
+    document.querySelectorAll('.prompt-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('prompt-' + index).classList.add('active');
+    document.querySelectorAll('.prompt-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('prompt-tab-' + index).classList.add('active');
+  }
+
+  function toggleFinding(btn) {
+    btn.closest('.finding-group').classList.toggle('open');
+  }
+
+  function togglePrompts() {
+    var drawer = document.getElementById('prompts-drawer');
+    var btn = document.getElementById('prompts-toggle');
+    var text = document.getElementById('prompts-toggle-text');
+    var icon = document.getElementById('prompts-toggle-icon');
+    var isOpen = drawer.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    text.textContent = isOpen ? 'Hide prompt templates' : 'Try it yourself — prompt templates';
+    icon.textContent = isOpen ? '↑' : '↓';
+  }
+
+  function showPT(index) {
+    document.querySelectorAll('.pt-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('pt-' + index).classList.add('active');
+    document.querySelectorAll('.pt-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('pt-tab-' + index).classList.add('active');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const current = document.querySelector('.pipeline-node.active');
+    const idx = parseInt(current.id.split('-')[1]);
+    if (e.key === 'ArrowRight' && idx < 2) showPanel(idx + 1);
+    if (e.key === 'ArrowLeft' && idx > 0) showPanel(idx - 1);
+  });
+</script>
+
+</body>
+</html>
