@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-Powered UX Pipeline — Hippo CoP Demo</title>
+<title>Agentic Delivery — Hippo CoP Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -118,6 +118,39 @@
     align-items: center;
     gap: 0;
     padding: 2rem 1rem 1rem;
+    position: relative;
+  }
+
+  .pipeline-loop-svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -65%);
+    width: 480px;
+    height: 90px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .loop-path {
+    fill: none;
+    stroke: var(--hippo-grey-dark);
+    stroke-width: 1.5;
+    opacity: 0.35;
+  }
+
+  .loop-flow {
+    fill: none;
+    stroke: url(#loopGradient);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 60 400;
+    animation: flowLoop 4s linear infinite;
+  }
+
+  @keyframes flowLoop {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -460; }
   }
 
   .pipeline-node {
@@ -126,9 +159,10 @@
     align-items: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 2.5rem;
     border-radius: 16px;
     position: relative;
+    z-index: 1;
   }
 
   .pipeline-node:hover { background: rgba(255,255,255,0.4); }
@@ -144,7 +178,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.9rem;
   }
 
   .node-icon.gemini {
@@ -179,11 +213,7 @@
   .pipeline-node.active .node-label { color: var(--text-primary); }
 
   .pipeline-arrow {
-    color: var(--hippo-grey-dark);
-    font-size: 1.2rem;
-    margin: 0 0.3rem;
-    opacity: 0.5;
-    padding-bottom: 1.2rem;
+    display: none;
   }
 
   .step-indicator {
@@ -604,6 +634,213 @@
   .hippo-logo-footer svg {
     width: 100px;
     height: auto;
+  }
+
+  /* ─── Why Section ─── */
+  .why-section {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0.5rem;
+  }
+
+  .why-header {
+    text-align: center;
+    margin-bottom: 1.8rem;
+  }
+
+  .why-header h2 {
+    font-size: 1.6rem;
+    font-weight: 200;
+    color: var(--hippo-navy);
+    margin-bottom: 0.5rem;
+  }
+
+  .why-header h2 strong {
+    font-weight: 600;
+  }
+
+  .why-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .why-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem 1.5rem;
+  }
+
+  .why-card-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .why-card.challenge .why-card-label { color: var(--hippo-pink-dark); }
+  .why-card.opportunity .why-card-label { color: var(--hippo-turquoise-dark); }
+
+  .why-card p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+
+  .value-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .value-card {
+    background: var(--hippo-navy);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .value-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--hippo-turquoise);
+    margin-bottom: 0.4rem;
+  }
+
+  .value-card p {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--hippo-grey);
+  }
+
+  /* ─── Capability Callout ─── */
+  .capability-callout {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem 1.4rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    border-left: 3px solid var(--hippo-turquoise);
+  }
+
+  .capability-callout.phase2 { border-left-color: var(--hippo-navy); }
+  .capability-callout.phase3 { border-left-color: var(--hippo-pink); }
+
+  .capability-callout-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--hippo-turquoise-dark);
+    margin-bottom: 0.3rem;
+  }
+
+  .capability-callout.phase2 .capability-callout-label { color: var(--hippo-navy); }
+  .capability-callout.phase3 .capability-callout-label { color: var(--hippo-pink-dark); }
+
+  .capability-callout p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ─── Comparison Table ─── */
+  .comparison-section {
+    margin-top: 1.5rem;
+  }
+
+  .comparison-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--hippo-navy);
+    margin-bottom: 0.8rem;
+  }
+
+  .comparison-section > p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+
+  .comparison-table thead th {
+    background: var(--hippo-navy);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.85rem 1rem;
+    text-align: left;
+  }
+
+  .comparison-table thead th:first-child {
+    width: 18%;
+  }
+
+  .comparison-table tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--hippo-grey-light);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--text-muted);
+    background: var(--bg-card);
+  }
+
+  .comparison-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table tbody td:first-child {
+    font-weight: 600;
+    color: var(--hippo-navy);
+    font-size: 0.8rem;
+  }
+
+  .comparison-table tbody td:last-child {
+    background: var(--hippo-turquoise-lightest);
+    color: var(--hippo-turquoise-dark);
+  }
+
+  .comparison-table strong {
+    font-weight: 600;
+    color: var(--hippo-navy);
+  }
+
+  .comparison-table tbody td:last-child strong {
+    color: var(--hippo-turquoise-dark);
+  }
+
+  .comparison-closing {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: center;
+    font-style: italic;
   }
 
   /* ─── Prompt Tabs ─── */
@@ -1159,51 +1396,119 @@
   <div class="hippo-logo">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1077.75 519.72"><defs><style>.hl{fill:#15243d;stroke-width:0}</style></defs><path class="hl" d="m238.68,339.88c-1.49.08-2.99.12-4.5.12-2.3,0-4.59-.09-6.84-.28,0,.09,0,.18,0,.28,0,21.87-17.73,39.59-39.6,39.59s-39.6-17.73-39.6-39.59c0-14.35,7.63-26.91,19.06-33.86-10.17-13.79-16.18-30.84-16.18-49.29v-.2c-.77.24-1.58.38-2.43.38-4.42,0-8.01-3.58-8.01-8.01s3.59-8.01,8.01-8.01c1.36,0,2.64.34,3.76.94,7.02-38.81,40.98-68.24,81.82-68.24,15.37,0,29.76,4.17,42.11,11.43,1.89-9.11,6.69-17.15,13.38-23.12-4.42-1.42-7.61-5.56-7.61-10.45,0-6.06,4.91-10.98,10.98-10.98s10.98,4.91,10.98,10.98c0,.71-.07,1.4-.19,2.07,4.45-1.58,9.24-2.43,14.23-2.43,19.86,0,36.56,13.58,41.3,31.96,7.82-4.75,17-7.48,26.82-7.48,28.58,0,51.74,23.16,51.74,51.74s-23.17,51.74-51.74,51.74c-26.65,0-48.6-20.15-51.44-46.04-5.13,2.18-10.77,3.39-16.69,3.39-1.1,0-2.18-.04-3.26-.12,1.66,6.54,2.54,13.4,2.54,20.46,0,18.85-6.27,36.24-16.85,50.18,10.49,7.12,17.39,19.15,17.39,32.78,0,21.87-17.73,39.59-39.6,39.59s-39.56-17.69-39.6-39.53"/><path class="hl" d="m468.79,310.85v-140.59h15.06v55.84c3.61-4.82,8.03-8.9,13.26-12.25,5.22-3.35,11.91-5.02,20.08-5.02,6.96,0,13.49,1.64,19.58,4.92,6.09,3.28,11.05,8.17,14.86,14.66,3.81,6.5,5.72,14.5,5.72,24v58.45h-15.06v-58.04c0-9.1-2.61-16.44-7.83-22-5.22-5.55-11.98-8.33-20.29-8.33-5.62,0-10.71,1.27-15.26,3.82-4.55,2.54-8.2,6.13-10.95,10.74-2.75,4.62-4.12,9.94-4.12,15.97v57.84h-15.06Z"/><path class="hl" d="m577.64,210.43h15.06v100.42h-15.06v-100.42Zm-.6-36.55h16.27v19.68h-16.27v-19.68Z"/><path class="hl" d="m663,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hl" d="m777.68,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.03,16.57,6.03,26.21s-2.01,18.21-6.03,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hl" d="m886.94,298.8c7.5,0,13.82-1.74,18.98-5.22,5.15-3.48,9.07-8.13,11.75-13.96,2.68-5.82,4.02-12.15,4.02-18.98s-1.34-13.32-4.02-19.08c-2.68-5.76-6.6-10.37-11.75-13.86-5.16-3.48-11.48-5.22-18.98-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.48,11.51,5.22,18.88,5.22m0,13.66c-10.18,0-19.01-2.31-26.51-6.93-7.5-4.62-13.26-10.88-17.27-18.78-4.02-7.9-6.02-16.6-6.02-26.11s2.01-18.38,6.02-26.21c4.02-7.83,9.77-14.06,17.27-18.68,7.5-4.62,16.34-6.93,26.51-6.93s19.18,2.31,26.61,6.93c7.43,4.62,13.16,10.85,17.17,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.74,14.16-17.17,18.78-7.43,4.62-16.3,6.93-26.61,6.93"/></svg>
   </div>
-  <h1><strong>AI-Powered UX</strong> Pipeline</h1>
-  <p>Moving at pace, failing fast, and amplifying ways of working through Gemini, Figma Make, and Claude on MoD Identity Assurance.</p>
+  <h1><strong>Agentic Delivery</strong></h1>
+  <p>Accelerating value through AI-driven design — scaling design capacity to provide accelerated delivery and enhanced quality within the same allocated resource and budget.</p>
+</div>
+
+<!-- Why Section: Challenge, Opportunity, Value Props -->
+<div class="why-section">
+  <div class="why-header">
+    <h2>Delivering <strong>great services faster</strong></h2>
+  </div>
+
+  <div class="why-grid">
+    <div class="why-card challenge">
+      <div class="why-card-label">The Challenge</div>
+      <p>We want to spend more time on understanding the people using our services and strategic thinking, but the current production overhead of manually prototyping to get rich feedback often consumes the majority of a project's life cycle.</p>
+    </div>
+    <div class="why-card opportunity">
+      <div class="why-card-label">The Opportunity</div>
+      <p>By using AI to augment our existing workflows, we can reduce the time between "policy intent" and "tested prototype" from weeks to days.</p>
+    </div>
+  </div>
+
+  <div class="value-strip">
+    <div class="value-card">
+      <h3>Fail fast, learn ever faster</h3>
+      <p>Identify policy or design friction points early, understand user behaviours and patterns faster, proof of concept or full scale service design without the massive development overheads.</p>
+    </div>
+    <div class="value-card">
+      <h3>Do more for the same</h3>
+      <p>Reallocate saved time and cost toward deep user research and complex problem-solving.</p>
+    </div>
+  </div>
 </div>
 
 <!-- Pipeline Navigation -->
 <div class="pipeline-strip">
+  <!-- Infinity loop SVG flowing behind nodes -->
+  <svg class="pipeline-loop-svg" viewBox="0 0 480 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="loopGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#7DB9AA"/>
+        <stop offset="50%" stop-color="#1B3A4B"/>
+        <stop offset="100%" stop-color="#E8A0B4"/>
+      </linearGradient>
+    </defs>
+    <!-- The continuous loop path: flows right from node 1 to 2, curves up to 3, loops back under to 1 -->
+    <path class="loop-path" d="
+      M 60,45
+      C 120,45 120,12 180,12
+      C 240,12 240,45 240,45
+      C 240,45 240,78 300,78
+      C 360,78 360,45 420,45
+      C 360,45 360,12 300,12
+      C 240,12 240,45 240,45
+      C 240,45 240,78 180,78
+      C 120,78 120,45 60,45
+    Z"/>
+    <path class="loop-flow" d="
+      M 60,45
+      C 120,45 120,12 180,12
+      C 240,12 240,45 240,45
+      C 240,45 240,78 300,78
+      C 360,78 360,45 420,45
+      C 360,45 360,12 300,12
+      C 240,12 240,45 240,45
+      C 240,45 240,78 180,78
+      C 120,78 120,45 60,45
+    Z"/>
+  </svg>
+
   <div class="pipeline-node active" onclick="showPanel(0)" id="node-0">
-    <div class="node-icon gemini">G</div>
-    <div class="node-label">Gemini</div>
-    <div class="step-indicator">STEP 01</div>
+    <div class="node-icon gemini">1</div>
+    <div class="node-label">Intent Architecture</div>
+    <div class="step-indicator">PHASE 01</div>
   </div>
   <div class="pipeline-arrow">→</div>
   <div class="pipeline-node" onclick="showPanel(1)" id="node-1">
-    <div class="node-icon figma">F</div>
-    <div class="node-label">Figma Make</div>
-    <div class="step-indicator">STEP 02</div>
+    <div class="node-icon figma">2</div>
+    <div class="node-label">Rapid Prototyping</div>
+    <div class="step-indicator">PHASE 02</div>
   </div>
   <div class="pipeline-arrow">→</div>
   <div class="pipeline-node" onclick="showPanel(2)" id="node-2">
-    <div class="node-icon claude">C</div>
-    <div class="node-label">Claude</div>
-    <div class="step-indicator">STEP 03</div>
+    <div class="node-icon claude">3</div>
+    <div class="node-label">Quality & Inclusion</div>
+    <div class="step-indicator">PHASE 03</div>
   </div>
 </div>
 
 <!-- Content Panels -->
 <div class="panel-container">
 
-  <!-- Panel 0: Gemini -->
+  <!-- Panel 0: Intent & Requirement Architecture -->
   <div class="panel active" id="panel-0">
     <div class="panel-header">
-      <h2>Step 1 — <strong>Prompt Engineering with Gemini</strong></h2>
-      <p>Gemini is the starting point of the pipeline. Using the "Laying the foundations" structure, we engineer a detailed prompt collaboratively — then refine it with Gemini Canvas before pasting into Figma Make.</p>
+      <h2>Phase 1 — <strong>Intent & Requirement Architecture</strong></h2>
+      <p>Converting policy requirements into design logic. We collaborate on a "Master Prompt" that defines the vision, functional and non-functional requirements, data schemas, and design standards — bringing the whole team together before a single screen is designed.</p>
+    </div>
+
+    <div class="capability-callout">
+      <div class="capability-callout-label">The Capability</div>
+      <p>Translating stakeholder vision, user insights, and data schemas into a structured "Service Logic" that an agent can interpret — distilling complex requirements into a testable logic map in under 60 minutes.</p>
     </div>
 
     <div class="card-grid">
       <div class="card">
-        <div class="card-tag gemini">Why Gemini</div>
-        <h3>Context-Rich Prompts</h3>
-        <p>Gemini excels at understanding complex UX requirements and translating them into detailed, structured prompts that specify layout, hierarchy, interaction patterns, and design standards.</p>
+        <div class="card-tag gemini">Approach</div>
+        <h3>Multi-disciplinary Input</h3>
+        <p>This stage isn't just for designers. Policy Leads and BAs define the rules, User Researchers provide the insights, and Technical Architects set the constraints — all contributing to a shared "Master Prompt".</p>
       </div>
       <div class="card">
         <div class="card-tag gemini">Technique</div>
         <h3>Iterative Refinement</h3>
-        <p>Start with a broad intent, then refine through Gemini Canvas. The prompt follows the same structure as the "Laying the foundations" phase — vision, objectives, requirements, and data schemas.</p>
+        <p>Start with a broad intent, then refine collaboratively. The prompt follows the "Laying the foundations" structure — vision, objectives, requirements, and data schemas — refined in real time.</p>
       </div>
     </div>
 
@@ -1295,15 +1600,20 @@
 
     <div class="nav-buttons">
       <button class="nav-btn" disabled>← Previous</button>
-      <button class="nav-btn primary" onclick="showPanel(1)">Next: Figma Make →</button>
+      <button class="nav-btn primary" onclick="showPanel(1)">Next: Rapid Prototyping →</button>
     </div>
   </div>
 
-  <!-- Panel 1: Figma Make -->
+  <!-- Panel 1: Rapid Collaborative Prototyping -->
   <div class="panel" id="panel-1">
     <div class="panel-header">
-      <h2>Step 2 — <strong>Design Generation with Figma Make</strong></h2>
-      <p>The following shows how a single Gemini prompt — built by collaborating closely with others in a multi-disciplinary team — becomes a usable, almost production-ready Figma prototype in minutes.</p>
+      <h2>Phase 2 — <strong>Rapid Collaborative Prototyping</strong></h2>
+      <p>Accelerating the transition from policy intent to iterative, testable prototypes. The team co-creates the logic, which is then synthesised into a functional layout instantly.</p>
+    </div>
+
+    <div class="capability-callout phase2">
+      <div class="capability-callout-label">The Capability</div>
+      <p>Consolidating the collective expertise of the team into a single, high-fidelity interaction model that is technically grounded and user-focused — generating near-production-ready artefacts with structured data fields, responsive logic, and component hierarchies.</p>
     </div>
 
     <!-- High-level SVG Flow (always visible) -->
@@ -1470,16 +1780,21 @@
     </div>
 
     <div class="nav-buttons">
-      <button class="nav-btn" onclick="showPanel(0)">← Previous: Gemini</button>
-      <button class="nav-btn primary" onclick="showPanel(2)">Next: Claude →</button>
+      <button class="nav-btn" onclick="showPanel(0)">← Previous: Intent Architecture</button>
+      <button class="nav-btn primary" onclick="showPanel(2)">Next: Quality & Inclusion →</button>
     </div>
   </div>
 
-  <!-- Panel 2: Claude -->
+  <!-- Panel 2: Rigorous Quality & Inclusion -->
   <div class="panel" id="panel-2">
     <div class="panel-header">
-      <h2>Step 3 — <strong>Accessibility Validation with Claude</strong></h2>
-      <p>Once the design is generated, Claude performs thorough accessibility testing — evaluating the output against WCAG 2.2 AA standards and identifying issues before any code is written.</p>
+      <h2>Phase 3 — <strong>Rigorous Quality & Inclusion</strong></h2>
+      <p>Reducing technical debt and remedial costs by validating accessibility standards early in the design cycle — before any code is written or committed to.</p>
+    </div>
+
+    <div class="capability-callout phase3">
+      <div class="capability-callout-label">The Capability</div>
+      <p>Using AI vision to audit designs against WCAG 2.2 AA standards before any code is written — identifying 'Critical' issues during the design stage to de-risk projects early, ensuring development resources are spent on building features rather than fixing avoidable errors.</p>
     </div>
 
     <div class="card-grid">
@@ -1757,23 +2072,45 @@ Please provide:
       </div>
     </div>
 
-    <div class="stats-row">
-      <div class="stat">
-        <div class="stat-number gemini">Fail Fast</div>
-        <div class="stat-label">Learn & Iterate Rapidly</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number figma">Move at Pace</div>
-        <div class="stat-label">Design at Delivery Speed</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number claude">Amplify WoW</div>
-        <div class="stat-label">AI-Enhanced Ways of Working</div>
-      </div>
+    <div class="comparison-section">
+      <h3>Evolving Digital Delivery</h3>
+      <p>Optimising the cost of discovery and enhancement within fixed budgets.</p>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Traditional Workflow</th>
+            <th>AI-Driven Workflow</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Delivery velocity</td>
+            <td><strong>2–4 Weeks</strong> — High production overhead. Manual process remains a bottleneck for both new discovery and service enhancements.</td>
+            <td><strong>1 day</strong> — Accelerated throughput. Rapidly shortening the path from intent to validated prototype across all service stages.</td>
+          </tr>
+          <tr>
+            <td>Feedback loops</td>
+            <td>1+ weeks to reach high-fidelity for testing.</td>
+            <td><strong>Days</strong> to reach high-fidelity for testing.</td>
+          </tr>
+          <tr>
+            <td>Iterations</td>
+            <td><strong>Reactive:</strong> Remedial work and audits often occur post-development.</td>
+            <td><strong>Proactive:</strong> Staying two steps ahead by spotting barriers before code is written and committed to.</td>
+          </tr>
+          <tr>
+            <td>Outcome</td>
+            <td><strong>Delivery constrained:</strong> Fixed budgets limit scope.</td>
+            <td><strong>Value:</strong> Delivering more quality for the same price.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="comparison-closing">By adopting this modular pipeline, we deliver more for the same price — ensuring we always balance organisational and user needs, and deliver at the speed they expect.</p>
     </div>
 
     <div class="nav-buttons">
-      <button class="nav-btn" onclick="showPanel(1)">← Previous: Figma Make</button>
+      <button class="nav-btn" onclick="showPanel(1)">← Previous: Rapid Prototyping</button>
       <button class="nav-btn primary" onclick="showPanel(0)">↻ Restart Demo</button>
     </div>
   </div>
@@ -1785,7 +2122,7 @@ Please provide:
   <div class="hippo-logo-footer">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1077.75 519.72"><defs><style>.hf{fill:#15243d;stroke-width:0}</style></defs><path class="hf" d="m238.68,339.88c-1.49.08-2.99.12-4.5.12-2.3,0-4.59-.09-6.84-.28,0,.09,0,.18,0,.28,0,21.87-17.73,39.59-39.6,39.59s-39.6-17.73-39.6-39.59c0-14.35,7.63-26.91,19.06-33.86-10.17-13.79-16.18-30.84-16.18-49.29v-.2c-.77.24-1.58.38-2.43.38-4.42,0-8.01-3.58-8.01-8.01s3.59-8.01,8.01-8.01c1.36,0,2.64.34,3.76.94,7.02-38.81,40.98-68.24,81.82-68.24,15.37,0,29.76,4.17,42.11,11.43,1.89-9.11,6.69-17.15,13.38-23.12-4.42-1.42-7.61-5.56-7.61-10.45,0-6.06,4.91-10.98,10.98-10.98s10.98,4.91,10.98,10.98c0,.71-.07,1.4-.19,2.07,4.45-1.58,9.24-2.43,14.23-2.43,19.86,0,36.56,13.58,41.3,31.96,7.82-4.75,17-7.48,26.82-7.48,28.58,0,51.74,23.16,51.74,51.74s-23.17,51.74-51.74,51.74c-26.65,0-48.6-20.15-51.44-46.04-5.13,2.18-10.77,3.39-16.69,3.39-1.1,0-2.18-.04-3.26-.12,1.66,6.54,2.54,13.4,2.54,20.46,0,18.85-6.27,36.24-16.85,50.18,10.49,7.12,17.39,19.15,17.39,32.78,0,21.87-17.73,39.59-39.6,39.59s-39.56-17.69-39.6-39.53"/><path class="hf" d="m468.79,310.85v-140.59h15.06v55.84c3.61-4.82,8.03-8.9,13.26-12.25,5.22-3.35,11.91-5.02,20.08-5.02,6.96,0,13.49,1.64,19.58,4.92,6.09,3.28,11.05,8.17,14.86,14.66,3.81,6.5,5.72,14.5,5.72,24v58.45h-15.06v-58.04c0-9.1-2.61-16.44-7.83-22-5.22-5.55-11.98-8.33-20.29-8.33-5.62,0-10.71,1.27-15.26,3.82-4.55,2.54-8.2,6.13-10.95,10.74-2.75,4.62-4.12,9.94-4.12,15.97v57.84h-15.06Z"/><path class="hf" d="m577.64,210.43h15.06v100.42h-15.06v-100.42Zm-.6-36.55h16.27v19.68h-16.27v-19.68Z"/><path class="hf" d="m663,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hf" d="m777.68,298.8c7.5,0,13.89-1.74,19.18-5.22,5.29-3.48,9.34-8.13,12.15-13.96,2.81-5.83,4.22-12.15,4.22-18.98s-1.4-13.32-4.22-19.08c-2.81-5.75-6.86-10.37-12.15-13.86-5.29-3.48-11.68-5.22-19.18-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.49,11.51,5.22,18.88,5.22m-49.01,51.82v-140.19h15.06v16.07c3.75-5.49,8.6-9.81,14.56-12.95,5.96-3.15,13.09-4.72,21.39-4.72,9.77,0,18.31,2.31,25.61,6.93,7.3,4.62,12.96,10.85,16.97,18.68,4.02,7.83,6.03,16.57,6.03,26.21s-2.01,18.21-6.03,26.11c-4.02,7.9-9.68,14.16-16.97,18.78-7.3,4.62-15.83,6.93-25.61,6.93-8.3,0-15.43-1.64-21.39-4.92-5.96-3.28-10.82-7.6-14.56-12.96v56.04h-15.06Z"/><path class="hf" d="m886.94,298.8c7.5,0,13.82-1.74,18.98-5.22,5.15-3.48,9.07-8.13,11.75-13.96,2.68-5.82,4.02-12.15,4.02-18.98s-1.34-13.32-4.02-19.08c-2.68-5.76-6.6-10.37-11.75-13.86-5.16-3.48-11.48-5.22-18.98-5.22s-13.66,1.74-18.88,5.22c-5.22,3.48-9.17,8.1-11.85,13.86-2.68,5.76-4.02,12.12-4.02,19.08s1.34,13.15,4.02,18.98c2.68,5.82,6.63,10.48,11.85,13.96,5.22,3.48,11.51,5.22,18.88,5.22m0,13.66c-10.18,0-19.01-2.31-26.51-6.93-7.5-4.62-13.26-10.88-17.27-18.78-4.02-7.9-6.02-16.6-6.02-26.11s2.01-18.38,6.02-26.21c4.02-7.83,9.77-14.06,17.27-18.68,7.5-4.62,16.34-6.93,26.51-6.93s19.18,2.31,26.61,6.93c7.43,4.62,13.16,10.85,17.17,18.68,4.02,7.83,6.02,16.57,6.02,26.21s-2.01,18.21-6.02,26.11c-4.02,7.9-9.74,14.16-17.17,18.78-7.43,4.62-16.3,6.93-26.61,6.93"/></svg>
   </div>
-  <span>hippo</span> — AI-Powered UX Pipeline — MoD Identity Assurance — CoP 2026
+  <span>hippo</span> — Agentic Delivery — MoD Identity Assurance — CoP 2026
 </div>
 
 <script>
